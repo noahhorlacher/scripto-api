@@ -32,8 +32,6 @@ app.get('/api/v1', (req, res) => {
 // API routes
 app.use('/api/v1/bugs', bugsRouter)
 app.use('/api/v1/images', imagesRouter)
-app.use('/api/v1/bugtypes', bugtypesRouter)
-app.use('/api/v1/developers', developersRouter)
 
 // error handling
 app.use((err, req, res, next) => {

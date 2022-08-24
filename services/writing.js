@@ -1,7 +1,6 @@
 // writing API functions
 const db = require('./db')
 const helper = require('../helper')
-const developers = require('./developers')
 const config = require('../config')
 const { schema } = require('../schemas/writing')
 
