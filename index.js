@@ -5,8 +5,8 @@ const app = express()
 const port = 3000
 
 // routers
-const bugsRouter = require('./routes/writing')
-const imagesRouter = require('./routes/images')
+const writingRouter = require('./routes/writing')
+const imageRouter = require('./routes/images')
 
 // middleware
 app.use(express.json())
@@ -30,8 +30,8 @@ app.get('/api/v1', (req, res) => {
 })
 
 // API routes
-app.use('/api/v1/bugs', bugsRouter)
-app.use('/api/v1/images', imagesRouter)
+app.use('/api/v1/writing', writingRouter)
+app.use('/api/v1/image', imageRouter)
 
 // error handling
 app.use((err, req, res, next) => {

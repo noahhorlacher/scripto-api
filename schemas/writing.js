@@ -13,6 +13,7 @@ const schema = Joi.object({
     created: Joi.date(),
     edited: Joi.date(),
     favourite: Joi.bool().default(false),
+    draft: Joi.bool().default(true),
     tags: Joi.array().default([])
 })
 

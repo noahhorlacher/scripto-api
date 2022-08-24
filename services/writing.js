@@ -71,7 +71,7 @@ async function create(writing) {
         INSERT INTO writing
         (image, content, favourite, draft)
         VALUES
-        (?, ?, ?, ?, ?, ?, ?)`,
+        (?, ?, ?, ?)`,
         [writing.image, writing.content, writing.favourite, writing.draft])
 
     // create writingtype entries in writings_writingtypes table

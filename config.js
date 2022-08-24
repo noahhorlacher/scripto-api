@@ -4,7 +4,7 @@ const config = {
         host: 'localhost',
         user: 'root',
         password: '',
-        database: 'bee-unlimited',
+        database: 'scripto',
     },
     listPerPage: 10,
     connectionLimit: 10
