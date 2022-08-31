@@ -16,7 +16,7 @@ async function getMultiple(page = 1) {
 
     // fetch pageCount
     let pageCount = await db.query(
-        `SELECT COUNT(*) as resultCount FROM writings`
+        `SELECT COUNT(*) as resultCount FROM writing`
     )
 
     pageCount = Math.ceil(pageCount[0].resultCount / config.listPerPage)
@@ -34,7 +34,7 @@ async function getById(id) {
     if (!id) throw 'no writing id specified'
 
     const rows = await db.query(
-        `SELECT * FROM writing WHERE id = ?`,
+        `SELECT * FROM writing WHERE writing_id = ?`,
         [id]
     )
     let data = helper.emptyOrRows(rows)
@@ -42,13 +42,12 @@ async function getById(id) {
     if (data.length == 0) throw 'writing not found'
 
     // fetch tags
-    const writingtypes = await db.query(
-        `SELECT fk_writingtype as id, title FROM writings_writingtypes
-            LEFT JOIN writingtypes ON fk_writingtype = writingtypes.id
-            WHERE fk_writing = ?`,
-        [data[0].id]
+    const tags = await db.query(
+        `SELECT * FROM writing_tag
+        WHERE fk_writing = ?`,
+        [id]
     )
-    data[0].writingtypes = helper.emptyOrRows(writingtypes)
+    data[0].tags = helper.emptyOrRows(tags)
 
     const meta = { id }
 
@@ -80,8 +79,8 @@ async function create(writing) {
     if (writing.tags && writing.tags.length > 0) {
         typesResult = await db.query(`
         INSERT INTO writing_tag (fk_writing, title)
-        VALUES (?)
-        `, writing.tags.map(bt => `(${result.insertId}, ${bt})`))
+        VALUES ?`, [writing.tags.map(bt => [result.insertId, bt.toString()])]
+        )
     }
 
     let message = result.affectedRows && (!typesResult || typesResult.affectedRows) ?
@@ -100,12 +99,20 @@ async function update(id, writing) {
 
 
     const result = await db.query(
-        `UPDATE writings
-        SET title=?, priority=?, image=?,
-        fk_developer=?, fk_creator=?, done=?
-        WHERE id=?`,
-        [writing.title, writing.priority, writing.image, writing.fk_developer, writing.fk_creator, writing.done, id]
+        `UPDATE writing
+        SET image=?, content=?, favourite=?, draft=?
+        WHERE writing_id=?`,
+        [writing.image, writing.content, writing.favourite, writing.draft, id]
     )
+
+    // update tags
+    await db.query(`
+        DELETE FROM writing_tag WHERE fk_writing = ?
+    `, [id])
+
+    if (writing.tags?.length > 0) await db.query(`
+        INSERT INTO writing_tag(title, fk_writing) VALUES ?
+    `, [writing.tags.map(title => [title, id])])
 
     let message = result.affectedRows ?
         'writing updated successfully.' :
@@ -118,12 +125,12 @@ async function update(id, writing) {
 async function remove(id) {
     // delete the writings_writingtypes entries
     await db.query(
-        `DELETE FROM writings_writingtypes WHERE fk_writing=?`, [id]
+        `DELETE FROM writing_tag WHERE fk_writing=?`, [id]
     )
 
     // delete the writing
     const result = await db.query(
-        `DELETE FROM writings WHERE id=?`, [id]
+        `DELETE FROM writing WHERE writing_id=?`, [id]
     )
 
     let message = result.affectedRows ?
@@ -136,7 +143,7 @@ async function remove(id) {
 // add tag to writing
 async function tag(id, writingtypeid) {
     const result = await db.query(`
-        INSERT INTO writings_writingtypes
+        INSERT INTO writing_tag
         (fk_writing, fk_writingtype)
         VALUES
         (?, ?)
@@ -152,7 +159,7 @@ async function tag(id, writingtypeid) {
 // remove tag from writing
 async function removeTag(id, writingtypeid) {
     const result = await db.query(`
-        DELETE FROM writings_writingtypes
+        DELETE FROM writing_tag
         WHERE fk_writing=? AND fk_writingtype=?
     `, [id, writingtypeid])
 

@@ -7,16 +7,34 @@ CREATE TABLE writing (
     image VARCHAR(60),
     content MEDIUMTEXT,
     created DATETIME DEFAULT CURRENT_TIMESTAMP,
-    edited DATETIME ON UPDATE CURRENT_TIMESTAMP,
     favourite BOOLEAN DEFAULT 0,
     draft BOOLEAN DEFAULT 1
 );
 
 CREATE TABLE writing_tag (
-    writings_tags_id INT PRIMARY KEY AUTO_INCREMENT,
+    writing_tag_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
-    fk_writing_id INT,
-    FOREIGN KEY (fk_writing_id) REFERENCES writing(writing_id)
+    fk_writing INT,
+    FOREIGN KEY (fk_writing) REFERENCES writing(writing_id)
+);
+
+CREATE TABLE link_type (
+    link_type_id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(20) NOT NULL
+);
+
+INSERT INTO link_type(title) VALUES (
+    ('Music'), ('Wiki'), ('Tips'), ('Inspiration'), ('Other')
+);
+
+CREATE TABLE writing_link (
+    writing_song_id INT PRIMARY KEY AUTO_INCREMENT,
+    fk_link_type INT DEFAULT 5,
+    FOREIGN KEY (fk_link_type) REFERENCES link_type(link_type_id),
+    title VARCHAR(30),
+    link VARCHAR(256) NOT NULL,
+    fk_writing INT,
+    FOREIGN KEY (fk_writing) REFERENCES writing(writing_id)
 );
 
 CREATE TABLE collage (
@@ -29,15 +47,15 @@ CREATE TABLE collage (
 
 CREATE TABLE collage_writing (
     collage_writing_id INT PRIMARY KEY AUTO_INCREMENT,
-    fk_collage_id INT,
-    FOREIGN KEY (fk_collage_id) REFERENCES collage(collage_id),
-    fk_writing_id INT,
-    FOREIGN KEY (fk_writing_id) REFERENCES writing(writing_id)
+    fk_collage INT,
+    FOREIGN KEY (fk_collage) REFERENCES collage(collage_id),
+    fk_writing INT,
+    FOREIGN KEY (fk_writing) REFERENCES writing(writing_id)
 );
 
 CREATE TABLE collage_tag (
     collage_tag_id INT PRIMARY KEY AUTO_INCREMENT,
     title VARCHAR(30) NOT NULL,
-    fk_collage_id INT,
-    FOREIGN KEY (fk_collage_id) REFERENCES collage(collage_id)
+    fk_collage INT,
+    FOREIGN KEY (fk_collage) REFERENCES collage(collage_id)
 );
